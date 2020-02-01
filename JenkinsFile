@@ -1,0 +1,22 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/milindchawre/spring-petclinic'
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Starting to build docker image'
+                script {
+                    def image = docker.build("mchawre/spring-petclinic:${env.BUILD_ID}")
+                    docker.withRegistry("https://registry.hub.docker.com", "dockercreds") {
+                        image.push()
+                    }
+                }
+            }
+        }
+    }
+}
